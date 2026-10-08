@@ -9,7 +9,6 @@ on:
 
 env:
   BUILD_TYPE: Release
-  CFLAGS: "-include cstdint"
   CXXFLAGS: "-include cstdint"
 
 jobs:
