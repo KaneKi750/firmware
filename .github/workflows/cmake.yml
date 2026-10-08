@@ -9,7 +9,6 @@ on:
 
 env:
   BUILD_TYPE: Release
-  CXXFLAGS: "-include cstdint"
 
 jobs:
   build:
@@ -34,6 +33,10 @@ jobs:
             echo "SD2PSX_RLS_TAG=nightly" >> $GITHUB_ENV
             echo "nightly-$(git rev-parse --short HEAD)"
           fi
+
+      - name: Patch pico-sdk for GCC 13+
+        run: |
+          sed -i '1s/^/#include <cstdint>\n/' ext/pico-sdk/tools/pioasm/pio_disassembler.h
 
       - name: Install dependencies
         run: |
