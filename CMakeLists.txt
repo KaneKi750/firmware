@@ -9,13 +9,17 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
+# --- OPTIMIZACIÓN ULTRA AGRESIVA DE TAMAÑO ---
 set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_GAMEDB=1" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_GAMEDB=1" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "-Os -fdata-sections -ffunction-sections -DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -fdata-sections -ffunction-sections -DNDEBUG" CACHE STRING "" FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,--gc-sections -Wl,--strip-all" CACHE STRING "" FORCE)
+# ---------------------------------------------
 
 set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/lv_conf.h CACHE STRING "" FORCE)
 add_subdirectory(ext/lvgl EXCLUDE_FROM_ALL)
 
+add_subdirectory(database)
 add_subdirectory(ps2boot)
 add_subdirectory(src/version)
 
@@ -128,13 +132,13 @@ target_link_libraries(sd2psx
     hardware_flash
     hardware_dma
     lvgl::lvgl
+    database
     ps2boot
     sd2psx_version
 )
 
-add_dependencies(sd2psx ps2boot)
+add_dependencies(sd2psx database ps2boot)
 set_target_properties(sd2psx PROPERTIES PICO_TARGET_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/memmap_custom.ld)
 
 pico_add_extra_outputs(sd2psx)
 set(DEBUG_USB_UART OFF CACHE BOOL "Activate UART over USB for debugging")
-
