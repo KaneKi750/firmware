@@ -6,14 +6,12 @@ include(pico_sdk_import.cmake)
 project(pico_examples C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-# set(PICO_COPY_TO_RAM 1)
 
 pico_sdk_init()
 
 set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG" CACHE STRING "" FORCE)
-
 
 set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/lv_conf.h CACHE STRING "" FORCE)
 add_subdirectory(ext/lvgl EXCLUDE_FROM_ALL)
@@ -34,12 +32,6 @@ add_executable(sd2psx
     src/settings.c
     src/bigmem.c
     src/oled.c
-
-    src/ps1/ps1_cardman.c
-    src/ps1/ps1_dirty.c
-    src/ps1/ps1_memory_card.c
-    src/ps1/ps1_empty_card.c
-    src/ps1/ps1_odeman.c
 
     src/ps2/ps2_memory_card.c
     src/ps2/ps2_dirty.c
@@ -101,8 +93,8 @@ target_compile_definitions(
     PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64
     PICO_FLASH_SIZE_BYTES=2097152
     USE_SPI_ARRAY_TRANSFER=1
+    DISABLE_PS1_SUPPORT=1
 )
-
 
 target_compile_options(
     sd2psx PRIVATE
@@ -112,14 +104,12 @@ target_compile_options(
 
 target_include_directories(sd2psx PUBLIC
     src/arduino_wrapper
-
     ext/pico-ssd1306
     ext/ESP8266SdFat/src
     ext/ESP8266SdFat/extras/attic
     ext/fnv
 )
 
-pico_generate_pio_header(sd2psx ${CMAKE_CURRENT_LIST_DIR}/src/ps1/ps1_mc_spi.pio)
 pico_generate_pio_header(sd2psx ${CMAKE_CURRENT_LIST_DIR}/src/ps2/ps2_mc_spi.pio)
 pico_generate_pio_header(sd2psx ${CMAKE_CURRENT_LIST_DIR}/src/ps2/ps2_qspi.pio)
 
@@ -142,10 +132,5 @@ add_dependencies(sd2psx gamedb ps2boot)
 set_target_properties(sd2psx PROPERTIES PICO_TARGET_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/memmap_custom.ld)
 
 pico_add_extra_outputs(sd2psx)
-
 set(DEBUG_USB_UART OFF CACHE BOOL "Activate UART over USB for debugging")
 
-if(DEBUG_USB_UART)
-    add_definitions(-DDEBUG_USB_UART)
-    pico_enable_stdio_usb(sd2psx ENABLED)
-endif()
