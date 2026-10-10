@@ -10,13 +10,12 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_PS1_SUPPORT=1" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_PS1_SUPPORT=1" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_GAMEDB=1" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -DNDEBUG -DDISABLE_GAMEDB=1" CACHE STRING "" FORCE)
 
 set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/lv_conf.h CACHE STRING "" FORCE)
 add_subdirectory(ext/lvgl EXCLUDE_FROM_ALL)
 
-add_subdirectory(database)
 add_subdirectory(ps2boot)
 add_subdirectory(src/version)
 
@@ -129,17 +128,13 @@ target_link_libraries(sd2psx
     hardware_flash
     hardware_dma
     lvgl::lvgl
-    gamedb
     ps2boot
     sd2psx_version
 )
 
-add_dependencies(sd2psx gamedb ps2boot)
+add_dependencies(sd2psx ps2boot)
 set_target_properties(sd2psx PROPERTIES PICO_TARGET_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/memmap_custom.ld)
 
-# --- CORTE RADICAL DE TAMAÑO UF2 ---
-# Quitamos la función inflable automática y forzamos el empaquetado manual recortado
-pico_add_uf2_output(sd2psx)
-# -----------------------------------
-
+pico_add_extra_outputs(sd2psx)
 set(DEBUG_USB_UART OFF CACHE BOOL "Activate UART over USB for debugging")
+
