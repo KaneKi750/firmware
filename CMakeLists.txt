@@ -137,5 +137,9 @@ target_link_libraries(sd2psx
 add_dependencies(sd2psx gamedb ps2boot)
 set_target_properties(sd2psx PROPERTIES PICO_TARGET_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/memmap_custom.ld)
 
-pico_add_extra_outputs(sd2psx)
+# --- CORTE RADICAL DE TAMAÑO UF2 ---
+# Quitamos la función inflable automática y forzamos el empaquetado manual recortado
+pico_add_uf2_output(sd2psx)
+# -----------------------------------
+
 set(DEBUG_USB_UART OFF CACHE BOOL "Activate UART over USB for debugging")
